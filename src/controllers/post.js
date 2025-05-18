@@ -31,6 +31,29 @@ const findPosts = async (req, res) => {
   }
 };
 
+const updatePost = async (req, res) => {
+  const { postId } = req.params;
+  const { content } = req.body;
+  try {
+    const isAuthor = await models.Post.isAuthor(postId, req.user.id);
+    if (!isAuthor) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    const post = await models.Post.update(postId, content);
+    return res.json({
+      post,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error updating post",
+      error: err,
+    });
+  }
+};
+
 const likePost = async (req, res) => {
   const { postId } = req.params;
   try {
@@ -61,4 +84,26 @@ const unLikePost = async (req, res) => {
   }
 };
 
-export { create, findPosts, likePost, unLikePost };
+const deletePost = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const isAuthor = await models.Post.isAuthor(postId, req.user.id);
+    if (!isAuthor) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    const post = await models.Post.destroy(postId);
+    return res.json({
+      post,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error deleting post",
+      error: err,
+    });
+  }
+};
+
+export { create, findPosts, updatePost, likePost, unLikePost, deletePost };

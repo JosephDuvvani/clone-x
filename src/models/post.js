@@ -31,6 +31,18 @@ const findMany = async () => {
   return posts;
 };
 
+const update = async (id, content) => {
+  const updatedPost = await prisma.post.update({
+    where: {
+      id,
+    },
+    data: {
+      content,
+    },
+  });
+  return updatedPost;
+};
+
 const updateLike = async (id, userId) => {
   const likedPost = await prisma.post.update({
     where: {
@@ -67,4 +79,30 @@ const updateUnLike = async (id, userId) => {
   return likedPost;
 };
 
-export default { create, findMany, updateLike, updateUnLike };
+const isAuthor = async (id, authorId) => {
+  const post = await prisma.post.findUnique({
+    where: {
+      id,
+    },
+  });
+  return post.authorId === authorId;
+};
+
+const destroy = async (id) => {
+  const deletedPost = await prisma.post.delete({
+    where: {
+      id,
+    },
+  });
+  return deletedPost;
+};
+
+export default {
+  create,
+  findMany,
+  update,
+  updateLike,
+  updateUnLike,
+  isAuthor,
+  destroy,
+};
