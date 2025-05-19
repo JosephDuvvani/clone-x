@@ -1,17 +1,21 @@
 import prisma from "../db/prisma.js";
 
-const create = async (content, authorId) => {
-  const post = await prisma.post.create({
+const create = async (content, postId, authorId) => {
+  const comment = await prisma.comment.create({
     data: {
       content,
+      postId,
       authorId,
     },
   });
-  return post;
+  return comment;
 };
 
-const findMany = async () => {
-  const posts = await prisma.post.findMany({
+const findMany = async (postId, offset, limit) => {
+  const comments = await prisma.comment.findMany({
+    where: {
+      postId,
+    },
     include: {
       author: {
         select: {
@@ -27,33 +31,26 @@ const findMany = async () => {
       },
       _count: true,
     },
+    orderBy: {
+      createdAt: "asc",
+    },
+    skip: offset,
+    take: limit,
   });
-  return posts;
+  return comments;
 };
 
 const exists = async (id) => {
-  const post = await prisma.post.findUnique({
+  const comment = await prisma.comment.findUnique({
     where: {
       id,
     },
   });
-  return !!post;
-};
-
-const update = async (id, content) => {
-  const updatedPost = await prisma.post.update({
-    where: {
-      id,
-    },
-    data: {
-      content,
-    },
-  });
-  return updatedPost;
+  return !!comment;
 };
 
 const updateLike = async (id, userId) => {
-  const likedPost = await prisma.post.update({
+  const likedComment = await prisma.comment.update({
     where: {
       id,
     },
@@ -67,11 +64,11 @@ const updateLike = async (id, userId) => {
       _count: true,
     },
   });
-  return likedPost;
+  return likedComment;
 };
 
 const updateUnLike = async (id, userId) => {
-  const likedPost = await prisma.post.update({
+  const unlikedComment = await prisma.comment.update({
     where: {
       id,
     },
@@ -85,32 +82,31 @@ const updateUnLike = async (id, userId) => {
       _count: true,
     },
   });
-  return likedPost;
+  return unlikedComment;
 };
 
 const isAuthor = async (id, authorId) => {
-  const post = await prisma.post.findUnique({
+  const comment = await prisma.comment.findUnique({
     where: {
       id,
     },
   });
-  return post.authorId === authorId;
+  return comment.authorId === authorId;
 };
 
 const destroy = async (id) => {
-  const deletedPost = await prisma.post.delete({
+  const deletedComment = await prisma.comment.delete({
     where: {
       id,
     },
   });
-  return deletedPost;
+  return deletedComment;
 };
 
 export default {
   create,
   findMany,
   exists,
-  update,
   updateLike,
   updateUnLike,
   isAuthor,
