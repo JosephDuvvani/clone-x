@@ -37,6 +37,8 @@ app.use(passport.session());
 
 app.use("/auth", routes.auth);
 app.use("/posts", routes.post);
+app.use("/users", routes.user);
+app.use("/search", routes.search);
 
 const PORT = process.env.PORT || 3000;
 

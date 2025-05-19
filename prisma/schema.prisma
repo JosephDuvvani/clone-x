@@ -17,6 +17,8 @@ model User {
   likedPosts    Post[]    @relation("PostLikes")
   comments      Comment[] @relation("CommentAuthor")
   likedComments Comment[] @relation("CommentLikes")
+  followedBy    User[]    @relation("UserFollows")
+  following     User[]    @relation("UserFollows")
   createdAt     DateTime  @default(now())
 }
 
