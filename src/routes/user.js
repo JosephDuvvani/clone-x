@@ -4,6 +4,7 @@ import {
   followUser,
   getFollowers,
   getFollowing,
+  getFollowingPosts,
   getNotFollowing,
   getUserInfo,
   getUserLikedPosts,
@@ -23,6 +24,7 @@ router.post("/:userId/unfollow", Auth.isAuth, unfollowUser);
 router.get("/:userId/followers", Auth.isAuth, getFollowers);
 router.get("/:userId/following", Auth.isAuth, getFollowing);
 router.get("/:userId/notFollowing", Auth.isAuth, getNotFollowing);
+router.get("/:userId/following_posts", Auth.isAuth, getFollowingPosts);
 
 router.post("/:userId/delete", Auth.isAuth, deleteUser);
 

@@ -97,6 +97,42 @@ const isAuthor = async (id, authorId) => {
   return post.authorId === authorId;
 };
 
+const findFollowingPosts = async (userId, limit, offset) => {
+  const posts = await prisma.post.findMany({
+    where: {
+      author: {
+        followedBy: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+    },
+    include: {
+      author: {
+        select: {
+          username: true,
+          profile: {
+            select: {
+              pictureUrl: true,
+              firstname: true,
+              lastname: true,
+            },
+          },
+        },
+      },
+      _count: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit,
+    skip: offset,
+  });
+
+  return posts;
+};
+
 const destroy = async (id) => {
   const deletedPost = await prisma.post.delete({
     where: {
@@ -114,5 +150,6 @@ export default {
   updateLike,
   updateUnLike,
   isAuthor,
+  findFollowingPosts,
   destroy,
 };

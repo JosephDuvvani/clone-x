@@ -165,6 +165,28 @@ const getNotFollowing = async (req, res) => {
   }
 };
 
+const getFollowingPosts = async (req, res) => {
+  const { userId } = req.params;
+  const offset = +req.query.offset || 0;
+  const limit = +req.query.limit || 10;
+
+  if (userId !== req.user.id) {
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
+  }
+
+  try {
+    const posts = await models.Post.findFollowingPosts(userId, limit, offset);
+    return res.json({ posts });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Error retrieving following posts",
+      error: err,
+    });
+  }
+};
+
 const deleteUser = async (req, res) => {
   const userId = req.user.id;
   const deleteId = req.params.userId;
@@ -195,5 +217,6 @@ export {
   getFollowers,
   getFollowing,
   getNotFollowing,
+  getFollowingPosts,
   deleteUser,
 };
