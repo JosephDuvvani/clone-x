@@ -35,7 +35,7 @@ model Profile {
 
 model Post {
   id        String    @id @default(uuid())
-  content   Json
+  body      Json
   likes     User[]    @relation("PostLikes")
   comments  Comment[]
   author    User      @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
@@ -46,7 +46,7 @@ model Post {
 
 model Comment {
   id        String   @id @default(uuid())
-  content   Json
+  body      Json
   likes     User[]   @relation("CommentLikes")
   author    User     @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String

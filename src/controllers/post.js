@@ -1,10 +1,10 @@
 import models from "../models/index.js";
 
 const create = async (req, res) => {
-  const { content } = req.body;
+  const { body } = req.body;
 
   try {
-    const post = await models.Post.create(content, req.user.id);
+    const post = await models.Post.create(body, req.user.id);
     return res.status(201).json({
       message: "Post created successfully",
       post,

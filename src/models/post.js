@@ -1,9 +1,9 @@
 import prisma from "../db/prisma.js";
 
-const create = async (content, authorId) => {
+const create = async (body, authorId) => {
   const post = await prisma.post.create({
     data: {
-      content,
+      body,
       authorId,
     },
   });
@@ -40,13 +40,13 @@ const exists = async (id) => {
   return !!post;
 };
 
-const update = async (id, content) => {
+const update = async (id, body) => {
   const updatedPost = await prisma.post.update({
     where: {
       id,
     },
     data: {
-      content,
+      body,
     },
   });
   return updatedPost;
