@@ -1,10 +1,11 @@
 import models from "../models/index.js";
+import user from "../models/user.js";
 
 const getUserInfo = async (req, res) => {
-  const { userId } = req.params;
+  const { username } = req.params;
 
   try {
-    const userInfo = await models.User.findInfo(userId);
+    const userInfo = await models.User.findInfo(username);
     if (!userInfo) {
       return res.status(404).json({
         message: "User not found",
@@ -20,12 +21,12 @@ const getUserInfo = async (req, res) => {
 };
 
 const getUserPosts = async (req, res) => {
-  const { userId } = req.params;
+  const { username } = req.params;
   const offset = +req.query.offset || 0;
   const limit = +req.query.limit || 10;
 
   try {
-    const posts = await models.User.findPosts(userId, limit, offset);
+    const posts = await models.User.findPosts(username, limit, offset);
     return res.json({ posts });
   } catch (err) {
     return res.status(500).json({
@@ -36,12 +37,12 @@ const getUserPosts = async (req, res) => {
 };
 
 const getUserLikedPosts = async (req, res) => {
-  const { userId } = req.params;
+  const { username } = req.params;
   const offset = +req.query.offset || 0;
   const limit = +req.query.limit || 10;
 
   try {
-    const posts = await models.User.findLikedPosts(userId, limit, offset);
+    const posts = await models.User.findLikedPosts(username, limit, offset);
     return res.json({ posts });
   } catch (err) {
     return res.status(500).json({
@@ -52,24 +53,24 @@ const getUserLikedPosts = async (req, res) => {
 };
 
 const followUser = async (req, res) => {
-  const userId = req.user.id;
-  const followId = req.params.userId;
+  const username = req.user.username;
+  const target = req.params.username;
 
-  if (userId === followId) {
+  if (username === target) {
     return res.status(400).json({
       message: "You cannot follow yourself",
     });
   }
 
   try {
-    const isFollowing = await models.User.isFollowing(userId, followId);
+    const isFollowing = await models.User.isFollowing(username, target);
     if (isFollowing) {
       return res.status(400).json({
         message: "You are already following this user",
       });
     }
 
-    await models.User.follow(userId, followId);
+    await models.User.follow(username, target);
     return res.sendStatus(204);
   } catch (err) {
     return res.status(500).json({
@@ -80,24 +81,24 @@ const followUser = async (req, res) => {
 };
 
 const unfollowUser = async (req, res) => {
-  const userId = req.user.id;
-  const followId = req.params.userId;
+  const username = req.user.username;
+  const target = req.params.username;
 
-  if (userId === followId) {
+  if (username === target) {
     return res.status(400).json({
       message: "You cannot unfollow yourself",
     });
   }
 
   try {
-    const isFollowing = await models.User.isFollowing(userId, followId);
+    const isFollowing = await models.User.isFollowing(username, target);
     if (!isFollowing) {
       return res.status(400).json({
         message: "You are not following this user",
       });
     }
 
-    await models.User.unfollow(userId, followId);
+    await models.User.unfollow(username, target);
     return res.sendStatus(204);
   } catch (err) {
     return res.status(500).json({
@@ -108,12 +109,12 @@ const unfollowUser = async (req, res) => {
 };
 
 const getFollowers = async (req, res) => {
-  const { userId } = req.params;
+  const { username } = req.params;
   const offset = +req.query.offset || 0;
   const limit = +req.query.limit || 10;
 
   try {
-    const followers = await models.User.findFollowers(userId, limit, offset);
+    const followers = await models.User.findFollowers(username, limit, offset);
     return res.json({ followers });
   } catch (err) {
     return res.status(500).json({
@@ -124,12 +125,12 @@ const getFollowers = async (req, res) => {
 };
 
 const getFollowing = async (req, res) => {
-  const { userId } = req.params;
+  const { username } = req.params;
   const offset = +req.query.offset || 0;
   const limit = +req.query.limit || 10;
 
   try {
-    const following = await models.User.findFollowing(userId, limit, offset);
+    const following = await models.User.findFollowing(username, limit, offset);
     return res.json({ following });
   } catch (err) {
     return res.status(500).json({
@@ -140,11 +141,11 @@ const getFollowing = async (req, res) => {
 };
 
 const getNotFollowing = async (req, res) => {
-  const { userId } = req.params;
+  const { username } = req.params;
   const offset = +req.query.offset || 0;
   const limit = +req.query.limit || 10;
 
-  if (userId !== req.user.id) {
+  if (username !== req.user.username) {
     return res.status(401).json({
       message: "Unauthorized",
     });
@@ -152,7 +153,7 @@ const getNotFollowing = async (req, res) => {
 
   try {
     const notFollowing = await models.User.findNotFollowing(
-      userId,
+      username,
       limit,
       offset
     );
@@ -166,18 +167,22 @@ const getNotFollowing = async (req, res) => {
 };
 
 const getFollowingPosts = async (req, res) => {
-  const { userId } = req.params;
+  const { username } = req.params;
   const offset = +req.query.offset || 0;
   const limit = +req.query.limit || 10;
 
-  if (userId !== req.user.id) {
+  if (username !== req.user.username) {
     return res.status(401).json({
       message: "Unauthorized",
     });
   }
 
   try {
-    const posts = await models.Post.findFollowingPosts(userId, limit, offset);
+    const posts = await models.Post.findFollowingPosts(
+      req.user.id,
+      limit,
+      offset
+    );
     return res.json({ posts });
   } catch (err) {
     return res.status(500).json({

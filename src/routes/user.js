@@ -15,16 +15,16 @@ import Auth from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-router.get("/:userId", Auth.isAuth, getUserInfo);
-router.get("/:userId/posts", Auth.isAuth, getUserPosts);
-router.get("/:userId/liked_posts", Auth.isAuth, getUserLikedPosts);
+router.get("/:username", Auth.isAuth, getUserInfo);
+router.get("/:username/posts", Auth.isAuth, getUserPosts);
+router.get("/:username/liked_posts", Auth.isAuth, getUserLikedPosts);
 
-router.post("/:userId/follow", Auth.isAuth, followUser);
-router.post("/:userId/unfollow", Auth.isAuth, unfollowUser);
-router.get("/:userId/followers", Auth.isAuth, getFollowers);
-router.get("/:userId/following", Auth.isAuth, getFollowing);
-router.get("/:userId/notFollowing", Auth.isAuth, getNotFollowing);
-router.get("/:userId/following_posts", Auth.isAuth, getFollowingPosts);
+router.post("/:username/follow", Auth.isAuth, followUser);
+router.post("/:username/unfollow", Auth.isAuth, unfollowUser);
+router.get("/:username/followers", Auth.isAuth, getFollowers);
+router.get("/:username/following", Auth.isAuth, getFollowing);
+router.get("/:username/notFollowing", Auth.isAuth, getNotFollowing);
+router.get("/:username/following_posts", Auth.isAuth, getFollowingPosts);
 
 router.post("/:userId/delete", Auth.isAuth, deleteUser);
 
