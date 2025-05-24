@@ -112,11 +112,11 @@ const findFollowingPosts = async (userId, limit, offset) => {
       author: {
         select: {
           username: true,
-          profile: {
+          profile: true,
+          _count: {
             select: {
-              pictureUrl: true,
-              firstname: true,
-              lastname: true,
+              followedBy: true,
+              following: true,
             },
           },
         },

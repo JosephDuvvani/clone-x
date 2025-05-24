@@ -120,12 +120,27 @@ const findPosts = async (username, limit, offset) => {
         take: limit,
         skip: offset,
         include: {
+          author: {
+            select: {
+              username: true,
+              profile: true,
+              _count: {
+                select: {
+                  followedBy: true,
+                  following: true,
+                },
+              },
+            },
+          },
           _count: {
             select: {
               likes: true,
               comments: true,
             },
           },
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       },
     },
@@ -147,11 +162,11 @@ const findLikedPosts = async (username, limit, offset) => {
           author: {
             select: {
               username: true,
-              profile: {
+              profile: true,
+              _count: {
                 select: {
-                  pictureUrl: true,
-                  firstname: true,
-                  lastname: true,
+                  followedBy: true,
+                  following: true,
                 },
               },
             },
@@ -162,6 +177,9 @@ const findLikedPosts = async (username, limit, offset) => {
               comments: true,
             },
           },
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       },
     },
@@ -233,11 +251,11 @@ const findFollowers = async (username, limit, offset) => {
         select: {
           id: true,
           username: true,
-          profile: {
+          profile: true,
+          _count: {
             select: {
-              pictureUrl: true,
-              firstname: true,
-              lastname: true,
+              followedBy: true,
+              following: true,
             },
           },
         },
@@ -260,11 +278,11 @@ const findFollowing = async (username, limit, offset) => {
         select: {
           id: true,
           username: true,
-          profile: {
+          profile: true,
+          _count: {
             select: {
-              pictureUrl: true,
-              firstname: true,
-              lastname: true,
+              followedBy: true,
+              following: true,
             },
           },
         },
@@ -288,11 +306,11 @@ const findNotFollowing = async (username, limit, offset) => {
     select: {
       id: true,
       username: true,
-      profile: {
+      profile: true,
+      _count: {
         select: {
-          pictureUrl: true,
-          firstname: true,
-          lastname: true,
+          followedBy: true,
+          following: true,
         },
       },
     },

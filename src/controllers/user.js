@@ -1,5 +1,4 @@
 import models from "../models/index.js";
-import user from "../models/user.js";
 
 const getUserInfo = async (req, res) => {
   const { username } = req.params;
