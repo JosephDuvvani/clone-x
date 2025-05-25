@@ -158,28 +158,34 @@ const findLikedPosts = async (username, limit, offset) => {
       likedPosts: {
         take: limit,
         skip: offset,
-        include: {
-          author: {
-            select: {
-              username: true,
-              profile: true,
+        select: {
+          id: true,
+          likedAt: true,
+          post: {
+            include: {
+              author: {
+                select: {
+                  username: true,
+                  profile: true,
+                  _count: {
+                    select: {
+                      followedBy: true,
+                      following: true,
+                    },
+                  },
+                },
+              },
               _count: {
                 select: {
-                  followedBy: true,
-                  following: true,
+                  likes: true,
+                  comments: true,
                 },
               },
             },
           },
-          _count: {
-            select: {
-              likes: true,
-              comments: true,
-            },
-          },
         },
         orderBy: {
-          createdAt: "desc",
+          likedAt: "desc",
         },
       },
     },

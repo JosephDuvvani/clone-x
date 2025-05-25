@@ -57,6 +57,10 @@ const updatePost = async (req, res) => {
 const likePost = async (req, res) => {
   const { postId } = req.params;
   try {
+    const isLiked = await models.Post.isLiked(postId, req.user.id);
+    if (isLiked) {
+      return res.status(400).json({ message: "You've liked the post already" });
+    }
     const post = await models.Post.updateLike(postId, req.user.id);
     return res.json({
       post,
@@ -72,7 +76,12 @@ const likePost = async (req, res) => {
 const unLikePost = async (req, res) => {
   const { postId } = req.params;
   try {
-    const post = await models.Post.updateUnLike(postId, req.user.id);
+    const like = await models.Post.findLiked(postId, req.user.id);
+    if (!like) {
+      return res.status(400).json({ message: "Like not found to unlike" });
+    }
+
+    const post = await models.Post.updateUnLike(like.id);
     return res.json({
       post,
     });

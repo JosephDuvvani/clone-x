@@ -52,6 +52,20 @@ const update = async (id, body) => {
   return updatedPost;
 };
 
+const isLiked = async (id, userId) => {
+  const likedPost = await prisma.post.findFirst({
+    where: {
+      id,
+      likes: {
+        some: {
+          userId,
+        },
+      },
+    },
+  });
+  return !!likedPost;
+};
+
 const updateLike = async (id, userId) => {
   const likedPost = await prisma.post.update({
     where: {
@@ -59,7 +73,9 @@ const updateLike = async (id, userId) => {
     },
     data: {
       likes: {
-        connect: { id: userId },
+        create: {
+          userId,
+        },
       },
     },
     select: {
@@ -70,19 +86,20 @@ const updateLike = async (id, userId) => {
   return likedPost;
 };
 
-const updateUnLike = async (id, userId) => {
-  const likedPost = await prisma.post.update({
+const updateUnLike = async (id) => {
+  const unlikedPost = await prisma.like.delete({
     where: {
       id,
     },
-    data: {
-      likes: {
-        disconnect: { id: userId },
-      },
-    },
-    select: {
-      id: true,
-      _count: true,
+  });
+  return unlikedPost;
+};
+
+const findLiked = async (postId, userId) => {
+  const likedPost = await prisma.like.findFirst({
+    where: {
+      postId,
+      userId,
     },
   });
   return likedPost;
@@ -147,8 +164,10 @@ export default {
   findMany,
   exists,
   update,
+  isLiked,
   updateLike,
   updateUnLike,
+  findLiked,
   isAuthor,
   findFollowingPosts,
   destroy,

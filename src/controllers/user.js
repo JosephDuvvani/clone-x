@@ -41,8 +41,9 @@ const getUserLikedPosts = async (req, res) => {
   const limit = +req.query.limit || 10;
 
   try {
-    const posts = await models.User.findLikedPosts(username, limit, offset);
-    return res.json({ posts });
+    const likes = await models.User.findLikedPosts(username, limit, offset);
+
+    return res.json({ likes });
   } catch (err) {
     return res.status(500).json({
       message: "Error retrieving posts",
