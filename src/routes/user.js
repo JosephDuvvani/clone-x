@@ -12,6 +12,7 @@ import {
   unfollowUser,
 } from "../controllers/user.js";
 import Auth from "../middleware/authMiddleware.js";
+import { getProfile, updateProfile } from "../controllers/profile.js";
 
 const router = Router();
 
@@ -19,6 +20,8 @@ router.get("/:username", Auth.isAuth, getUserInfo);
 router.get("/:username/posts", Auth.isAuth, getUserPosts);
 router.get("/:username/liked_posts", Auth.isAuth, getUserLikedPosts);
 
+router.get("/:username/profile", Auth.isAuth, getProfile);
+router.put("/:username/profile", Auth.isAuth, updateProfile);
 router.post("/:username/follow", Auth.isAuth, followUser);
 router.post("/:username/unfollow", Auth.isAuth, unfollowUser);
 router.get("/:username/followers", Auth.isAuth, getFollowers);
