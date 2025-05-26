@@ -4,11 +4,17 @@ const getUserInfo = async (req, res) => {
   const { username } = req.params;
 
   try {
-    const userInfo = await models.User.findInfo(username);
+    let userInfo = await models.User.findInfo(username);
     if (!userInfo) {
       return res.status(404).json({
         message: "User not found",
       });
+    }
+    if (username === req.user.username) {
+      const likesIDs = await models.User.findLikesIDs(username);
+      const connectIDs = await models.User.findConnectIDs(username);
+
+      userInfo = { ...userInfo, likesIDs, connectIDs };
     }
     return res.json({ userInfo });
   } catch (err) {
