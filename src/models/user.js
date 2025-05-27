@@ -211,6 +211,33 @@ const findLikesIDs = async (username) => {
     : [];
 };
 
+const findConnectIDs = async (username) => {
+  const userInfo = await prisma.user.findUnique({
+    where: {
+      username,
+    },
+    select: {
+      followedBy: {
+        select: { id: true },
+      },
+      following: {
+        select: { id: true },
+      },
+    },
+  });
+
+  return {
+    followedByIDs:
+      userInfo?.followedBy.length > 0
+        ? userInfo.followedBy.map((user) => user.id)
+        : [],
+    followingIDs:
+      userInfo?.following.length > 0
+        ? userInfo.following.map((user) => user.id)
+        : [],
+  };
+};
+
 const follow = async (username, target) => {
   const user = await prisma.user.update({
     where: {
@@ -406,6 +433,7 @@ export default {
   findPosts,
   findLikedPosts,
   findLikesIDs,
+  findConnectIDs,
   follow,
   unfollow,
   isFollowing,

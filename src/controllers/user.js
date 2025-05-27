@@ -4,11 +4,22 @@ const getUserInfo = async (req, res) => {
   const { username } = req.params;
 
   try {
-    const userInfo = await models.User.findInfo(username);
+    let userInfo = await models.User.findInfo(username);
     if (!userInfo) {
       return res.status(404).json({
         message: "User not found",
       });
+    }
+    if (username !== req.user.username) {
+      const connectIDs = await models.User.findConnectIDs(req.user.username);
+
+      userInfo = {
+        ...userInfo,
+        connection: {
+          following: connectIDs.followingIDs.includes(userInfo.id),
+          followedBy: connectIDs.followedByIDs.includes(userInfo.id),
+        },
+      };
     }
     return res.json({ userInfo });
   } catch (err) {
@@ -131,7 +142,18 @@ const getFollowers = async (req, res) => {
   const limit = +req.query.limit || 10;
 
   try {
-    const followers = await models.User.findFollowers(username, limit, offset);
+    let followers = await models.User.findFollowers(username, limit, offset);
+    if (followers.length > 0) {
+      const connectIDs = await models.User.findConnectIDs(req.user.username);
+
+      followers = followers.map((user) => ({
+        ...user,
+        connection: {
+          following: connectIDs.followingIDs.includes(user.id),
+          followedBy: true,
+        },
+      }));
+    }
     return res.json({ followers });
   } catch (err) {
     return res.status(500).json({
@@ -147,7 +169,18 @@ const getFollowing = async (req, res) => {
   const limit = +req.query.limit || 10;
 
   try {
-    const following = await models.User.findFollowing(username, limit, offset);
+    let following = await models.User.findFollowing(username, limit, offset);
+    if (following.length > 0) {
+      const connectIDs = await models.User.findConnectIDs(req.user.username);
+
+      following = following.map((user) => ({
+        ...user,
+        connection: {
+          following: true,
+          followedBy: connectIDs.followedByIDs.includes(user.id),
+        },
+      }));
+    }
     return res.json({ following });
   } catch (err) {
     return res.status(500).json({
@@ -169,11 +202,22 @@ const getNotFollowing = async (req, res) => {
   }
 
   try {
-    const notFollowing = await models.User.findNotFollowing(
+    let notFollowing = await models.User.findNotFollowing(
       username,
       limit,
       offset
     );
+    if (notFollowing.length > 0) {
+      const connectIDs = await models.User.findConnectIDs(req.user.username);
+
+      notFollowing = notFollowing.map((user) => ({
+        ...user,
+        connection: {
+          following: false,
+          followedBy: connectIDs.followedByIDs.includes(user.id),
+        },
+      }));
+    }
     return res.json({ notFollowing });
   } catch (err) {
     return res.status(500).json({
