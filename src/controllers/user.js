@@ -25,7 +25,18 @@ const getUserPosts = async (req, res) => {
   const limit = +req.query.limit || 10;
 
   try {
-    const posts = await models.User.findPosts(username, limit, offset);
+    let posts = await models.User.findPosts(username, limit, offset);
+    if (posts.length > 0) {
+      const likesIDs = await models.User.findLikesIDs(req.user.username);
+
+      if (likesIDs.length > 0)
+        posts = posts.map((post) =>
+          likesIDs.includes(post.id)
+            ? { ...post, liked: true }
+            : { ...post, liked: false }
+        );
+    }
+
     return res.json({ posts });
   } catch (err) {
     return res.status(500).json({
@@ -41,7 +52,13 @@ const getUserLikedPosts = async (req, res) => {
   const limit = +req.query.limit || 10;
 
   try {
-    const likes = await models.User.findLikedPosts(username, limit, offset);
+    let likes = await models.User.findLikedPosts(username, limit, offset);
+    if (likes.length > 0) {
+      likes = likes.map((like) => ({
+        ...like,
+        post: { ...like.post, liked: true },
+      }));
+    }
 
     return res.json({ likes });
   } catch (err) {
@@ -178,11 +195,21 @@ const getFollowingPosts = async (req, res) => {
   }
 
   try {
-    const posts = await models.Post.findFollowingPosts(
+    let posts = await models.Post.findFollowingPosts(
       req.user.id,
       limit,
       offset
     );
+    if (posts.length > 0) {
+      const likesIDs = await models.User.findLikesIDs(req.user.username);
+
+      if (likesIDs.length > 0)
+        posts = posts.map((post) =>
+          likesIDs.includes(post.id)
+            ? { ...post, liked: true }
+            : { ...post, liked: false }
+        );
+    }
     return res.json({ posts });
   } catch (err) {
     return res.status(500).json({
