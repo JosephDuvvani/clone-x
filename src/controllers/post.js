@@ -2,9 +2,10 @@ import models from "../models/index.js";
 
 const create = async (req, res) => {
   const { body } = req.body;
+  const postId = req.params.postId || null;
 
   try {
-    const post = await models.Post.create(body, req.user.id);
+    const post = await models.Post.create(body, req.user.id, postId);
     return res.status(201).json({
       message: "Post created successfully",
       post,
@@ -26,6 +27,21 @@ const findPosts = async (req, res) => {
   } catch (err) {
     res.status(500).json({
       message: "Error finding posts",
+      error: err,
+    });
+  }
+};
+
+const findReplies = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const replies = await models.Post.findReplies(postId);
+    return res.json({
+      replies,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error finding replies",
       error: err,
     });
   }
@@ -115,4 +131,12 @@ const deletePost = async (req, res) => {
   }
 };
 
-export { create, findPosts, updatePost, likePost, unLikePost, deletePost };
+export {
+  create,
+  findPosts,
+  findReplies,
+  updatePost,
+  likePost,
+  unLikePost,
+  deletePost,
+};

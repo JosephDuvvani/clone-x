@@ -1,10 +1,25 @@
 import prisma from "../db/prisma.js";
 
-const create = async (body, authorId) => {
+const create = async (body, authorId, replyToId = null) => {
   const post = await prisma.post.create({
     data: {
       body,
       authorId,
+      replyToId: replyToId,
+    },
+    include: {
+      replyTo: {
+        include: {
+          author: {
+            select: {
+              username: true,
+              profile: true,
+              _count: true,
+            },
+          },
+          _count: true,
+        },
+      },
     },
   });
   return post;
@@ -29,6 +44,29 @@ const findMany = async () => {
     },
   });
   return posts;
+};
+
+const findReplies = async (postId) => {
+  const post = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+    select: {
+      replies: {
+        include: {
+          author: {
+            select: {
+              username: true,
+              profile: true,
+              _count: true,
+            },
+          },
+          _count: true,
+        },
+      },
+    },
+  });
+  return post.replies;
 };
 
 const exists = async (id) => {
@@ -130,12 +168,7 @@ const findFollowingPosts = async (userId, limit, offset) => {
         select: {
           username: true,
           profile: true,
-          _count: {
-            select: {
-              followedBy: true,
-              following: true,
-            },
-          },
+          _count: true,
         },
       },
       _count: true,
@@ -162,6 +195,7 @@ const destroy = async (id) => {
 export default {
   create,
   findMany,
+  findReplies,
   exists,
   update,
   isLiked,

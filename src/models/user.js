@@ -117,6 +117,9 @@ const findPosts = async (username, limit, offset) => {
     },
     select: {
       posts: {
+        where: {
+          replyToId: null,
+        },
         take: limit,
         skip: offset,
         include: {
@@ -132,12 +135,7 @@ const findPosts = async (username, limit, offset) => {
               },
             },
           },
-          _count: {
-            select: {
-              likes: true,
-              comments: true,
-            },
-          },
+          _count: true,
         },
         orderBy: {
           createdAt: "desc",
@@ -175,12 +173,24 @@ const findLikedPosts = async (username, limit, offset) => {
                   },
                 },
               },
-              _count: {
-                select: {
-                  likes: true,
-                  comments: true,
+              replyTo: {
+                include: {
+                  author: {
+                    select: {
+                      username: true,
+                      profile: true,
+                      _count: {
+                        select: {
+                          followedBy: true,
+                          following: true,
+                        },
+                      },
+                    },
+                  },
+                  _count: true,
                 },
               },
+              _count: true,
             },
           },
         },
