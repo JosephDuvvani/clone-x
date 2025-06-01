@@ -34,14 +34,54 @@ const findPosts = async (req, res) => {
 
 const findReplies = async (req, res) => {
   const { postId } = req.params;
+  const offset = +req.query.offset || 0;
+  const limit = +req.query.limit || 10;
+
   try {
-    const replies = await models.Post.findReplies(postId);
+    let replies = await models.Post.findReplies(postId, limit, offset);
+    if (replies.length > 0) {
+      const likesIDs = await models.User.findLikesIDs(req.user.username);
+
+      if (likesIDs.length > 0)
+        replies = replies.map((post) =>
+          likesIDs.includes(post.id)
+            ? { ...post, liked: true }
+            : { ...post, liked: false }
+        );
+    }
     return res.json({
       replies,
     });
   } catch (err) {
     res.status(500).json({
       message: "Error finding replies",
+      error: err,
+    });
+  }
+};
+
+const findReplyChain = async (req, res) => {
+  const { postId } = req.params;
+  let chain = [];
+
+  try {
+    let currentPost = await models.Post.find(postId);
+    const likesIDs = await models.User.findLikesIDs(req.user.username);
+
+    while (currentPost) {
+      currentPost = likesIDs.includes(currentPost.id)
+        ? { ...currentPost, liked: true }
+        : { ...currentPost, liked: false };
+      chain.unshift(currentPost);
+      if (!currentPost.replyToId) break;
+
+      currentPost = await models.Post.find(currentPost.replyToId);
+    }
+
+    return res.json({ chain });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error finding reply chain",
       error: err,
     });
   }
@@ -135,6 +175,7 @@ export {
   create,
   findPosts,
   findReplies,
+  findReplyChain,
   updatePost,
   likePost,
   unLikePost,

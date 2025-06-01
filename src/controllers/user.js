@@ -253,6 +253,19 @@ const getFollowingPosts = async (req, res) => {
             ? { ...post, liked: true }
             : { ...post, liked: false }
         );
+
+      const connectIDs = await models.User.findConnectIDs(req.user.username);
+
+      posts = posts.map((post) => ({
+        ...post,
+        author: {
+          ...post.author,
+          connection: {
+            following: true,
+            followedBy: connectIDs.followedByIDs.includes(post.authorId),
+          },
+        },
+      }));
     }
     return res.json({ posts });
   } catch (err) {

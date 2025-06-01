@@ -25,6 +25,25 @@ const create = async (body, authorId, replyToId = null) => {
   return post;
 };
 
+const find = async (id) => {
+  const post = await prisma.post.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      author: {
+        select: {
+          username: true,
+          profile: true,
+          _count: true,
+        },
+      },
+      _count: true,
+    },
+  });
+  return post;
+};
+
 const findMany = async () => {
   const posts = await prisma.post.findMany({
     include: {
@@ -46,7 +65,7 @@ const findMany = async () => {
   return posts;
 };
 
-const findReplies = async (postId) => {
+const findReplies = async (postId, limit, offset) => {
   const post = await prisma.post.findUnique({
     where: {
       id: postId,
@@ -63,6 +82,11 @@ const findReplies = async (postId) => {
           },
           _count: true,
         },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: limit,
+        skip: offset,
       },
     },
   });
@@ -194,6 +218,7 @@ const destroy = async (id) => {
 
 export default {
   create,
+  find,
   findMany,
   findReplies,
   exists,
