@@ -8,6 +8,15 @@ const create = async (body, authorId, replyToId = null) => {
       replyToId: replyToId,
     },
     include: {
+      author: {
+        select: {
+          username: true,
+          profile: true,
+          _count: true,
+        },
+      },
+      _count: true,
+
       replyTo: {
         include: {
           author: {
